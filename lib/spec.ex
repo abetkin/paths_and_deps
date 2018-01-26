@@ -11,6 +11,7 @@ what about recursion?
 execute everything that can find
 
 
+tail recursion with modules?
 """
 
 defmodule Dep do
