@@ -11,6 +11,8 @@ defmodule Di do
   end
 
   defmacro defdi(head, body) do
+    # parse function deps
+    #
     fun_name = elem(head, 0)
     quote do
       @di_functions unquote(fun_name)
@@ -23,12 +25,28 @@ defmodule Di do
     nil
   end
 
-  defmacro get_paths(head, body) do
-    attrs = case head do
-      {:%{}, [line: _], attrs} -> attrs
-      {:%, [line: _], attrs} -> attrs
+  defp parse_declaration(head) do
+    {_name, [line: _], attrs} = head
+    for attr <- attrs do
+      {:%, _, [
+        {:__aliases__, _, [mod_name]},
+        {:%{}, _, kv}
+      ]} = attr
+      mod_name
     end
-    IO.inspect attrs
+  end
+
+  defmacro get_paths(head, body) do
+    parse_declaration(head)
+    |> IO.inspect
+    # TODO :=
+    # attrs = case head do
+    #   {:%{}, [line: _], attrs} -> nil
+    #   {:%, [line: _], block} ->
+    #     # {:__aliases__, _opts, [mod]}, _attrs = block
+    #     IO.inspect block
+    #     nil
+    # end
     nil
   end
   
@@ -38,14 +56,28 @@ defmodule Aa do
   defstruct [:value]
 end
 
+defmodule Bb do
+  defstruct []
+end
+
+defmodule Cc do
+  defstruct []
+end
+
 defmodule M do
   import Di
-  get_paths %{a: b} do
+  alias Aa, as: Bb
+  # get_paths %{a: b} do
+  #   1
+  # end
+
+  get_paths f(%Aa{a: b, d: 4}, %Bb{}, %Cc{x: x})  do
     1
   end
 
-  get_paths %Aa{a: b, d: 4} do
-    1
-  end
+  # get_paths %Bb{} # = bb 
+  # do
+  #   1
+  # end
 end
 
