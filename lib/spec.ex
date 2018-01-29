@@ -47,3 +47,14 @@ defmodule M do
     run M, %{param: "obj"}
   end
 end
+
+
+defmodule M2 do
+  use Di
+
+  defmodule Comp do
+    def init %Dep{} = d do
+      %Comp{}
+    end
+  end
+end
